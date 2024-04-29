@@ -28,6 +28,20 @@ const userService = {
                 })
             }
         })
+    },
+
+    getById: (userID, callback) => {
+        logger.info('get by ID')
+        database.getById(userID, (err, data) => {
+            if (err) {
+                callback(err, null);
+            } else {
+                callback(null, {
+                    message: `Found a user with ID: ${userID}.`, 
+                    data: data
+                });
+            }
+        });
     }
 }
 
