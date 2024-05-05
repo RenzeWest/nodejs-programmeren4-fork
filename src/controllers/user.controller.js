@@ -15,7 +15,7 @@ let userController = {
             }
 
             if (success) {
-                res.status(201).json({
+                res.status(200).json({
                     status: success.status,
                     message: success.message,
                     data: success.data

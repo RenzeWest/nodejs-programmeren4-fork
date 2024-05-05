@@ -65,7 +65,7 @@ const validateUserCreateChaiExpect = (req, res, next) => {
         // Check if all fields are entered and the right type
         // assert(reqB, "Missing a field in the body or a field is not correct");
 
-        chai.expect(reqB.firstName, 'Firstname moet een string zijn en mag niet leeg zijn, error').to.be.a('string').and.not.empty;
+        // chai.expect(reqB.firstName, 'Firstname moet een string zijn en mag niet leeg zijn, error').to.be.a('string').and.not.empty;
         
         // chai.expect(reqB).to.have.property('lastName').that.is.not.empty.and.is.a('string');
         // chai.expect(reqB).to.have.property('emailAdress').that.is.not.empty.and.is.a('string');
@@ -88,13 +88,13 @@ const validateUserCreateChaiExpect = (req, res, next) => {
         // chai.expect(reqB.phoneNumber).not.to.be.empty;
 
         // Check if a valid firstname has been entered
-        // assert(reqB.firstName, 'Missing or incorrect firstName field')
-        // chai.expect(reqB.firstName).to.not.be.empty
-        // chai.expect(reqB.firstName).to.be.a('string')
-        // chai.expect(reqB.firstName).to.match(
-        //     /^[a-zA-Z]+$/,
-        //     'firstName must be a string'
-        // )
+        assert(reqB.firstName, 'Missing or incorrect firstName field')
+        chai.expect(reqB.firstName).to.not.be.empty
+        chai.expect(reqB.firstName).to.be.a('string')
+        chai.expect(reqB.firstName).to.match(
+            /^[a-zA-Z]+$/,
+            'firstName must be a string'
+        )
 
         // Check if the email is valid
 
