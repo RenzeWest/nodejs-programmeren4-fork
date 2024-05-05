@@ -12,7 +12,6 @@ const port = process.env.PORT || 3000
 // Deze route geeft de student information
 app.get('/api/info', (req, res) => {
     console.log('GET /api/info')
-    const info = 
     res.json({
         studentName: 'Renze Westerink',
         studentNumber: 2217105,

@@ -24,25 +24,85 @@ let userController = {
         })
     },
 
-    getAll: (req, res, next) => {
+    getUsers: (req, res, next) => {
         logger.trace('userContoller: getAll');
-        userService.getAll((error, success) => {
-            if (error) {
-                return next({
-                    status: error.status,
-                    message: error.message,
-                    data: {}
-                });
-            }
 
-            if (success) {
-                res.status(200).json({
-                    status: success.status,
-                    message: success.message,
-                    data: success.data
-                });
-            }
-        })
+        // Ik ga ervanuit dat ik maar 2 filters hoef te verzorgen en dat ik deze zelf mag kiezen
+        if (req.query.emailAdress && req.query.phoneNumber) { // Beide filters zijn aanwezig
+            userService.getByFilters(req.query.emailAdress, req.query.phoneNumber, (error, success) => {
+                if (error) {
+                    return next({
+                        status: error.status,
+                        message: error.message,
+                        data: {}
+                    });
+                }
+
+                if (success) {
+                    res.status(200).json({
+                        status: success.status,
+                        message: success.message,
+                        data: success.data
+                    });
+                }
+            })
+        } else if (req.query.emailAdress) { // Alleen email is aanwezig
+            userService.getByFilters(req.query.emailAdress, null, (error, success) => {
+                if (error) {
+                    return next({
+                        status: error.status,
+                        message: error.message,
+                        data: {}
+                    });
+                }
+
+                if (success) {
+                    res.status(200).json({
+                        status: success.status,
+                        message: success.message,
+                        data: success.data
+                    });
+                }
+            })
+        } else if (req.query.phoneNumber) { // Alleen phoneNumber is aanwezig
+            userService.getByFilters(null, req.query.phoneNumber, (error, success) => {
+                if (error) {
+                    return next({
+                        status: error.status,
+                        message: error.message,
+                        data: {}
+                    });
+                }
+
+                if (success) {
+                    res.status(200).json({
+                        status: success.status,
+                        message: success.message,
+                        data: success.data
+                    });
+                }
+            })
+        } else { // er zijn geen filters dus er kan ongefilterd gezocht worden
+            userService.getAll((error, success) => {
+                if (error) {
+                    return next({
+                        status: error.status,
+                        message: error.message,
+                        data: {}
+                    });
+                }
+
+                if (success) {
+                    res.status(200).json({
+                        status: success.status,
+                        message: success.message,
+                        data: success.data
+                    });
+                }
+            })
+        }
+
+        
     },
 
     getById: (req, res, next) => {

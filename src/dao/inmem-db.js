@@ -86,7 +86,7 @@ const database = {
                 return;
             }
             // Voeg een id toe en voeg het item toe aan de database
-            let userFinal = Object.assign({id: this._index++}, item); // Ik heb het toevoegen van de ID zo gedaan, zodat het in het juiste format is
+            const userFinal = Object.assign({id: this._index++}, item); // Ik heb het toevoegen van de ID zo gedaan, zodat het object in het juiste format is
             
             // Voeg item toe aan de array
             this._data.push(userFinal);
@@ -117,15 +117,53 @@ const database = {
         }, this._delayTime)
     },
 
+    getByFilters(email, phoneNumber, callback) {
+        setTimeout(() => {
+            if (email && phoneNumber) {
+                const filteredArray = [];
+                for (const user of this._data) {
+                    const userEmail = user.emailAdress;
+                    const userPhonenumber = user.phoneNumber;
+
+                    if (userEmail.includes(email) && userPhonenumber.includes(phoneNumber)) { // Alle bij de filters moeten deels matchen
+                        filteredArray.push(user);
+                    }
+                }
+                callback(null, filteredArray)
+            } else if (email && phoneNumber === null) {
+                const filteredArray = [];
+                for (const user of this._data) {
+                    const userEmail = user.emailAdress;
+
+                    if (userEmail.includes(email)) { 
+                        filteredArray.push(user);
+                    }
+                }
+                callback(null, filteredArray)
+            } else if (email === null && phoneNumber) {
+                const filteredArray = [];
+                for (const user of this._data) {
+                    const userPhonenumber = user.phoneNumber;
+                    console.log(userPhonenumber + " " + user.phoneNumber)
+                    if (userPhonenumber.includes(phoneNumber)) { 
+                        filteredArray.push(user);
+                    }
+                }
+                callback(null, filteredArray)
+            }
+            
+        }, this._delayTime)
+    },
+
     updateById(id, user, callback) {
         setTimeout(() => {
             const index = this.getIndexOfId(id);
-            if (!(this.isEmailAvailable(user.emailAdress))) {
-                callback({status: 400, message: `Error: emailAddress ${user.emailAdress} is already in use`})
+            if (!(this.isEmailAvailable(user, id))) {
+                callback({status: 400, message: `Error: emailAddress ${user.emailAdress} is already in use`}, null)
             }
             if (!(index === -1)) {
-                this._data[index] = user;
-                callback(null, {user});
+                this._data[index] = Object.assign(this._data[index], user);
+                callback(null, {updatedUser: this._data[index]});
             } else {
                 callback({status: 404, message: `Error: id ${id} does not exist!` }, null)
             }
@@ -137,7 +175,6 @@ const database = {
             const index = this.getIndexOfId(id);
             if (!(index === -1)) {
                 this._data.splice(index, 1);
-                console.log('Array after deletion \n' + this._data)
                 callback(null, {});
             } else {
                 callback({status: 404, message: `Error: id ${id} does not exist!` }, null)
@@ -153,12 +190,18 @@ const database = {
         return true;
     },
 
+    isEmailAvailable(email, id) { // a version for the update
+        for (const user of this._data) {
+            if (user.emailAdress === email && user.id !== id) {
+                return false}
+        }
+        return true;
+    },
+
     // gets the index of an id. Returns -1 if the id is not found. It can also be used to check if there is a user with the ID (because if there is not it will return -1)
     getIndexOfId(id) {
         for (let i = 0; i < this._data.length; i++) {
             if (this._data[i].id === parseInt(id)) {
-                console.log('Index: ' + i)
-                console.log(this._data[i].id)
                 return i;
             }
         }

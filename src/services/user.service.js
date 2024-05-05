@@ -50,6 +50,38 @@ const userService = {
         });
     },
 
+    getByFilters: (email, phoneNumber, callback) => {
+        logger.info(`Searching on email: ${email} and phoneNumber: ${phoneNumber}`);
+        database.getByFilters(email, phoneNumber, (err, data) => {
+                if (err) {
+                    callback(err, null);
+                } else {
+                    callback(null, {
+                        status: 200,
+                        message: `Searched on filters ${email} & ${phoneNumber}. We found a total of ${data.length} users`,
+                        data: data
+                    });
+                }
+            })
+        // if (email === null && phoneNumber) {
+
+        // } else if (email && phoneNumber === null) {
+
+        // } else {
+            
+        // }
+        
+    },
+
+    // getByOneFilter: (filter, callback) {
+    //     const splitFilter = filter.split(":");
+    //     if (splitFilter[0] === 'email') {
+
+    //     } else if (splitFilter[0] === 'phoneNumber') {
+
+    //     }
+    // },
+
     updateById: (userID, user, callback) => {
         logger.info(`update by ID: ${userID}`);
         database.updateById(userID, user, (err, data) => {
