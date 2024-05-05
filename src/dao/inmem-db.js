@@ -136,7 +136,8 @@ const database = {
         setTimeout(() => {
             const index = this.getIndexOfId(id);
             if (!(index === -1)) {
-                this._data.splice(id, 1);
+                this._data.splice(index, 1);
+                console.log('Array after deletion \n' + this._data)
                 callback(null, {});
             } else {
                 callback({status: 404, message: `Error: id ${id} does not exist!` }, null)
@@ -156,6 +157,8 @@ const database = {
     getIndexOfId(id) {
         for (let i = 0; i < this._data.length; i++) {
             if (this._data[i].id === parseInt(id)) {
+                console.log('Index: ' + i)
+                console.log(this._data[i].id)
                 return i;
             }
         }
