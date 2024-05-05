@@ -9,15 +9,15 @@ app.use(express.json())
 
 const port = process.env.PORT || 3000
 
-// Dit is een voorbeeld van een simpele route
+// Deze route geeft de student information
 app.get('/api/info', (req, res) => {
     console.log('GET /api/info')
-    const info = {
-        name: 'My Nodejs Express server',
-        version: '0.0.1',
+    const info = 
+    res.json({
+        studentName: 'Renze Westerink',
+        studentNumber: 2217105,
         description: 'This is a simple Nodejs Express server'
-    }
-    res.json(info)
+    })
 })
 
 // Hier komen alle routes
