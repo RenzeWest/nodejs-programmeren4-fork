@@ -6,14 +6,13 @@ const userService = {
         logger.info('create user', user)
         database.add(user, (err, data) => {
             if (err) {
-                logger.info(
-                    'error creating user: ',
-                    err.message || 'unknown error'
-                )
+                logger.info('error creating user: ', err.message || 'unknown error')
+                console.log(err.status)
                 callback(err, null)
             } else {
                 logger.trace(`User created with id ${data.id}.`)
                 callback(null, {
+                    status: 201,
                     message: `User created with id ${data.id}.`,
                     data: data
                 })
@@ -28,6 +27,7 @@ const userService = {
                 callback(err, null)
             } else {
                 callback(null, {
+                    status: 200,
                     message: `Found ${data.length} users.`,
                     data: data
                 })
@@ -36,15 +36,46 @@ const userService = {
     },
 
     getById: (userID, callback) => {
-        logger.info('get by ID')
+        logger.info(`get by ID: ${userID}`)
         database.getById(userID, (err, data) => {
             if (err) {
                 callback(err, null);
             } else {
                 callback(null, {
+                    status: 200,
                     message: `Found a user with ID: ${userID}.`, 
                     data: data
                 });
+            }
+        });
+    },
+
+    updateById: (userID, user, callback) => {
+        logger.info(`update by ID: ${userID}`);
+        database.updateById(userID, user, (err, data) => {
+            if (err) {
+                callback(err, null);
+            } else {
+                callback(null, {
+                    status: 202,
+                    message: `Updated user with ID: ${userID}`,
+                    data: data
+                });
+            }
+        })
+    }, 
+
+    deleteById: (userID, callback) => {
+        logger.info(`delete by ID: ${userID}`);
+        database.deleteById(userID, (err, data) => {
+            if (err) {
+                callback(err, null);
+            } else {
+                callback(null, {
+                    status: 200,
+                    message: `Deleted user with ID: ${userID}`,
+                    data: data
+                })
             }
         });
     }

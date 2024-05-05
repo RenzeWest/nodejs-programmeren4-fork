@@ -61,13 +61,44 @@ const validateUserCreateChaiShould = (req, res, next) => {
 
 const validateUserCreateChaiExpect = (req, res, next) => {
     try {
-        assert(req.body.firstName, 'Missing or incorrect firstName field')
-        chai.expect(req.body.firstName).to.not.be.empty
-        chai.expect(req.body.firstName).to.be.a('string')
-        chai.expect(req.body.firstName).to.match(
-            /^[a-zA-Z]+$/,
-            'firstName must be a string'
-        )
+        const reqB = req.body;
+        // Check if all fields are entered and the right type
+        // assert(reqB, "Missing a field in the body or a field is not correct");
+
+        chai.expect(reqB.firstName, 'Firstname moet een string zijn en mag niet leeg zijn, error').to.be.a('string').and.not.empty;
+        
+        // chai.expect(reqB).to.have.property('lastName').that.is.not.empty.and.is.a('string');
+        // chai.expect(reqB).to.have.property('emailAdress').that.is.not.empty.and.is.a('string');
+        // chai.expect(reqB).to.have.property('password').that.is.not.empty.and.is.a('string');
+        // chai.expect(reqB).to.have.property('isActive').that.is.not.empty.and.is.a('boolean');
+        // chai.expect(reqB).to.have.property('street').that.is.not.empty.and.is.a('string');
+        // chai.expect(reqB).to.have.property('city').that.is.not.empty.and.is.a('string');
+        // chai.expect(reqB).to.have.property('phoneNumber').that.is.not.empty.and.is.a('string');
+        // chai.expect(reqB).to.have.property('role').that.is.not.empty.and.is.a('array');
+
+        // // // Check if there is a value in the fields
+        // assert(reqB, "One of the fields is empty");
+        // chai.expect(reqB.firstName).not.to.be.empty;
+        // chai.expect(reqB.lastName).not.to.be.empty;
+        // chai.expect(reqB.emailAdress).not.to.be.empty;
+        // chai.expect(reqB.password).not.to.be.empty;
+        // chai.expect(reqB.isActive).not.to.be.undefined;
+        // chai.expect(reqB.street).not.to.be.empty;
+        // chai.expect(reqB.city).not.to.be.empty;
+        // chai.expect(reqB.phoneNumber).not.to.be.empty;
+
+        // Check if a valid firstname has been entered
+        // assert(reqB.firstName, 'Missing or incorrect firstName field')
+        // chai.expect(reqB.firstName).to.not.be.empty
+        // chai.expect(reqB.firstName).to.be.a('string')
+        // chai.expect(reqB.firstName).to.match(
+        //     /^[a-zA-Z]+$/,
+        //     'firstName must be a string'
+        // )
+
+        // Check if the email is valid
+
+
         logger.trace('User successfully validated')
         next()
     } catch (ex) {
@@ -81,12 +112,10 @@ const validateUserCreateChaiExpect = (req, res, next) => {
 }
 
 // Userroutes
-router.post('/api/user', validateUserCreateChaiExpect, userController.create)
-router.get('/api/user', userController.getAll)
-router.get('/api/user/:userId', userController.getById)
-
-// Tijdelijke routes om niet bestaande routes op te vangen
-router.put('/api/user/:userId', notFound)
-router.delete('/api/user/:userId', notFound)
+router.post('/api/user', validateUserCreateChaiExpect, userController.create);
+router.get('/api/user', userController.getAll);
+router.get('/api/user/:userId', userController.getById);
+router.put('/api/user/:userId', userController.updateById);
+router.delete('/api/user/:userId', userController.deleteById);
 
 module.exports = router
