@@ -105,9 +105,9 @@ const validateUserCreate = (req, res, next) => {
         chai.expect(reqB.roles, 'roles validation failed, ').to.be.a('array');
         
         // Run the special validation methods
-        // validateEmail(reqB.emailAdress);
+        validateEmail(reqB.emailAdress);
         validatePassword(reqB.password);
-        // validatePhonenumber(reqB.phoneNumber);
+        validatePhonenumber(reqB.phoneNumber);
 
         logger.trace('User successfully validated');
         next();
@@ -127,14 +127,13 @@ const validateUserCreate = (req, res, next) => {
 
 // Validate Email
 function validateEmail(email) {
-    // const patern = '';
-    // if (!patern.test(email)) throw new Error(`${email} email not valid`);
+    const patern = /^[a-zA-Z]\.[a-zA-Z]{2,}\@[a-zA-Z]{2,}\.[a-zA-Z]{2,3}$/;
+    if (!patern.test(email)) throw new Error(`${email} email not valid`);
 
 }
 
 // Validate Password
 function validatePassword(password) {
-    console.log(password)
     const patern = /^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])\S{8,}$/;
 
     if(!(patern.test(password))) throw new Error(`password not strong enough`);
@@ -142,7 +141,8 @@ function validatePassword(password) {
 
 // Validate PhoneNumber
 function validatePhonenumber(phoneNumber) {
-
+    const patern = /^[0][6](\ |\-){1,1}[0-9]{8,8}$/;
+    if (!patern.test(phoneNumber)) throw new Error(`${phoneNumber} phoneNumber not valid`);
 }
 // Userroutes
 router.post('/api/user', validateUserCreate, userController.create);
