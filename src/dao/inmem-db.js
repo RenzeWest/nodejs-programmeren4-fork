@@ -62,7 +62,7 @@ const database = {
             id: 4,
             firstName: 'Lola',
             lastName: 'Ozen',
-            emailAdress: 'lo@server.nl',
+            emailAdress: 'l.oz@server.nl',
             password: 'Wad147LoOz!',
             isActive: true,
             street: 'Tweede Bloksweg 147', 
@@ -163,7 +163,7 @@ const database = {
             }
             if (!(index === -1)) {
                 this._data[index] = Object.assign(this._data[index], user);
-                callback(null, {updatedUser: this._data[index]});
+                callback(null, {data: this._data[index]});
             } else {
                 callback({status: 404, message: `Error: id ${id} does not exist!` }, null)
             }

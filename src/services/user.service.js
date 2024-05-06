@@ -88,11 +88,12 @@ const userService = {
             if (err) {
                 callback(err, null);
             } else {
-                callback(null, {
-                    status: 202,
+                
+                callback(null, Object.assign({
+                    status: 200,
                     message: `Updated user with ID: ${userID}`,
-                    data: data
-                });
+                    data: {}
+                }, data));
             }
         })
     }, 
