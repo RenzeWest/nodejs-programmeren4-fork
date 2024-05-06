@@ -82,7 +82,7 @@ let userController = {
                     });
                 }
             })
-        } else { // er zijn geen filters dus er kan ongefilterd gezocht worden
+        } else { // er zijn geen filters dus er kan ongefilterd gezocht worden (of er zijn filters opgegeven die niet bestaan)
             userService.getAll((error, success) => {
                 if (error) {
                     return next({

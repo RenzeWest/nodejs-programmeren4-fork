@@ -28,7 +28,7 @@ const userService = {
             } else {
                 callback(null, {
                     status: 200,
-                    message: `Found ${data.length} users.`,
+                    message: `Found all (${data.length}) users.`,
                     data: data
                 })
             }
