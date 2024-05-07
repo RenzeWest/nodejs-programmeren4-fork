@@ -1,7 +1,39 @@
 const database = require('../dao/inmem-db')
+const mysqlDatabase = require('../dao/mysql-database')
 const logger = require('../util/logger')
 
 const userService = {
+    // Method to call mySQL database
+    getAllmysql: (callback) => {
+        logger.info('Get all users')
+        mysqlDatabase.getConnection(function(err, connection) {
+            // Check of er een error is
+            if (err) {
+                logger.error(err)
+                callback(err, null)
+                return;
+            }
+
+            connection.query(
+                'SELECT * FROM `user`',
+                function (error, results, fields) {
+                    // Query is uitgevoerd dus geef de verbinding weer vrij
+                    connection.release()
+
+                    if (error) {
+                        logger.error(error)
+                        callback(error, null)
+                    } else {
+                        logger.debug(results)
+                        callback(null, {
+                            message: `Found ${results.length} users.`,
+                            data: results
+                        })
+                    }
+                })
+            })
+    },
+
     create: (user, callback) => {
         logger.info('create user', user)
         database.add(user, (err, data) => {
