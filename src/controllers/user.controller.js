@@ -172,6 +172,27 @@ let userController = {
                 });
             }
         });
+    },
+
+    getAllTest: (req, res, next) => {
+        logger.trace('Get all SQL');
+        userService.getAllmysql((error, success) => {
+            if (error) {
+                return next({
+                    status: error.status,
+                    message: error.message,
+                    data: {}
+                });
+            }
+
+            if (success) {
+                res.status(200).json({
+                    status: success.status,
+                    message: success.message,
+                    data: success.data
+                });
+            }
+        })
     }
 }
 

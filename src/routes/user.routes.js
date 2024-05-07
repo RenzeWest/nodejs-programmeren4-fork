@@ -120,7 +120,11 @@ function validatePhonenumber(phoneNumber) {
     if (!patern.test(phoneNumber)) throw new Error(`${phoneNumber} phoneNumber not valid`);
 }
 // Userroutes
+
+
 router.post('/api/user', validateUserCreate, userController.create);
+
+router.get('/api/user/test', userController.getAllTest);
 router.get('/api/user', userController.getUsers);
 router.get('/api/user/:userId', userController.getById);
 router.put('/api/user/:userId', validateUserPut, userController.updateById);
