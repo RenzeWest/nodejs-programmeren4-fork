@@ -7,14 +7,14 @@ chai.should()
 chai.use(chaiHttp)
 tracer.setLevel('warn')
 
-const endpointToTest = '/api/user/0'
+const endpointToTest = '/api/user/'
 
 describe('UC205 Updaten van usergegevens', () => {
 
     it('TC-205-1 Verplicht veld "emailAdress" ontbreekt', (done) => {
         // verwacht  400
         chai.request(server)
-            .put(endpointToTest)
+            .put(endpointToTest + 1)
             .send({
                 firstName: 'Renze',
                 lastName: 'Westerink',
@@ -43,7 +43,7 @@ describe('UC205 Updaten van usergegevens', () => {
     it('TC-205-3 Niet-valide telefoonnummber', (done) => {
         // verwacht 400
         chai.request(server)
-            .put(endpointToTest)
+            .put(endpointToTest + 1)
             .send({
                 firstName: 'Renze',
                 lastName: 'Westerink',
@@ -68,7 +68,7 @@ describe('UC205 Updaten van usergegevens', () => {
 
     it('TC-205-4 Gebruiker bestaat niet', (done) => {
         chai.request(server)
-            .put(endpointToTest + 100)
+            .put(endpointToTest + 10000)
             .send({
                 firstName: 'Renze',
                 lastName: 'Westerink',
@@ -85,7 +85,7 @@ describe('UC205 Updaten van usergegevens', () => {
                 chai.expect(res.body).to.be.a('object');
                 chai.expect(res.body).to.have.property('status').equals(404);
                 chai.expect(res.body).to.have.property('data').that.is.a('object').that.is.empty;
-                chai.expect(res.body).to.have.property('message').equals('Error: id 0100 does not exist!')
+                chai.expect(res.body).to.have.property('message').equals('Error: id 10000 does not exist!')
 
                 done();
             })
@@ -98,13 +98,17 @@ describe('UC205 Updaten van usergegevens', () => {
     it('TC-205-6 Gebruiker succesvol gewijzigd', (done) => {
         // verwacht 200
         chai.request(server)
-            .put(endpointToTest)
+            .put(endpointToTest + 4)
             .send({
-                firstName: 'Renze',
-                lastName: 'Westerink',
-                emailAdress: 'r.gw@server.nl',
-                phoneNumber: '06 29158683'
-
+                "firstName": "Mark",
+                "lastName": "Van Dam",
+                "emailAdress": "m.vandm@server.nl",
+                "password": "A8&jdhasdfas",
+                "isActive": false,
+                "street": "Lovensdijkstraat 61",
+                "city": "Breda",
+                "phoneNumber": "06 12312345",
+                "roles": []
             })
             .end((err, res) => {
                 // Controleerd of de status 200 is
@@ -117,11 +121,11 @@ describe('UC205 Updaten van usergegevens', () => {
                 chai.expect(res.body).to.have.property('data').that.is.a('object').that.is.not.empty
                     
                 // Test of het result matched met de input
-                chai.expect(res.body.data).to.have.property('firstName').equals('Renze')
-                chai.expect(res.body.data).to.have.property('lastName').equals('Westerink')
-                chai.expect(res.body.data).to.have.property('emailAdress').equals('r.gw@server.nl')
-                chai.expect(res.body.data).to.have.property('phoneNumber').equals('06 29158683')
-                chai.expect(res.body.data).to.have.property('id').equals(0)
+                chai.expect(res.body.data).to.have.property('firstName').equals('Mark')
+                chai.expect(res.body.data).to.have.property('lastName').equals('Van Dam')
+                chai.expect(res.body.data).to.have.property('emailAdress').equals('m.vandm@server.nl')
+                chai.expect(res.body.data).to.have.property('phoneNumber').equals('06 12312345')
+                chai.expect(res.body.data).to.have.property('id').equals(4)
 
                 done()
             })

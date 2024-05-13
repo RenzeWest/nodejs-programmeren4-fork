@@ -118,7 +118,7 @@ describe('UC201 Registreren als nieuwe user', () => {
                 id: 4,
                 firstName: 'Lola',
                 lastName: 'Ozen',
-                emailAdress: 'l.oz@server.nl',
+                emailAdress: 'j.doe@server.com',
                 password: 'Wad147LoOz!',
                 isActive: true,
                 street: 'Tweede Bloksweg 147', 
@@ -134,7 +134,7 @@ describe('UC201 Registreren als nieuwe user', () => {
                 chai.expect(res.body).to.have.property('status').equals(400)
                 chai.expect(res.body)
                     .to.have.property('message')
-                    .equals('Email (l.oz@server.nl) already in use!') 
+                    .equals('Email (j.doe@server.com) already in use!') 
                 chai
                     .expect(res.body)
                     .to.have.property('data')
