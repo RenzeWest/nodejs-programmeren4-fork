@@ -119,12 +119,10 @@ function validatePhonenumber(phoneNumber) {
     const patern = /^[0][6](\ |\-){1,1}[0-9]{8,8}$/;
     if (!patern.test(phoneNumber)) throw new Error(`${phoneNumber} phoneNumber not valid`);
 }
+
 // Userroutes
-
-
 router.post('/api/user', validateUserCreate, userController.create);
 
-router.get('/api/user/test', userController.getAllTest);
 router.get('/api/user', userController.getUsers);
 router.get('/api/user/:userId', userController.getById);
 router.put('/api/user/:userId', validateUserPut, userController.updateById);

@@ -11,6 +11,12 @@ const endpointToTest = '/api/user/'
 
 describe('UC-206 Verwijderen van user', () => {
 
+    beforeEach((done) => {
+        console.log('Before each test')
+
+        done()
+    })
+
     it('TC-206-1 Gebruiker bestaat niet', (done) => {
         // Verwacht 404
         chai.request(server)
@@ -42,7 +48,7 @@ describe('UC-206 Verwijderen van user', () => {
     it('TC-206-4 Geburiker succesvol verwijderd', (done) => {
         // Verwacht 200
         chai.request(server)
-            .delete(endpointToTest + '1')
+            .delete(endpointToTest + '83')
             .end((err, res) => {
                 // Controleerd of de status 200 is
                 chai.expect(res).to.have.status(200);
