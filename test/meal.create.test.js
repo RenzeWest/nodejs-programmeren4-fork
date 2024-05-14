@@ -141,7 +141,7 @@ describe('UC-301 Toevoegen van maaltijd', () => {
             .post(endpointToTest)
             .set('Authorization', 'Bearer ' + token)
             .send({
-             isActive: 1,
+                isActive: 1,
                 isVega: 0,
                 isVegan: 0,
                 isToTakeHome: 1,
@@ -151,11 +151,10 @@ describe('UC-301 Toevoegen van maaltijd', () => {
                 imageUrl: "eenurlnaareenimage",
                 name: "bakbanaan met stoofvlees",
                 description: "bakbanaan met stoofvlees om mee te nemen",
-                allergenes: "banaan"
+                allergenes: "noten"
             })
             .end((err, res) => {
                 chai.expect(res).to.have.status(201)
-                chai.expect(res).not.to.have.status(400)
                 chai.expect(res.body).to.be.a('object')
                 chai.expect(res.body).to.have.property('status').equals(201)
                 chai.expect(res.body)
