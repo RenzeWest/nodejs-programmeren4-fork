@@ -1,3 +1,4 @@
+const { getMealById } = require('../controllers/meal.controller');
 const mysqlDatabase = require('../dao/mysql-database')
 const logger = require('../util/logger')
 
@@ -39,6 +40,70 @@ const mealService = {
 
                         }
                     });
+                }
+            });
+        });
+    },
+
+    getMealById: (mealId, callback) => {
+
+        mysqlDatabase.getConnection(function(err, connection) {
+            if (err) {
+                logger.error(err);
+                callback(err, null);
+                return;
+
+            }
+
+            connection.query('SELECT * FROM `meal` WHERE id = ?;', [mealId], (err, results) => {
+                connection.release();
+                if (err) {
+                    logger.error(err);
+                    call(error, null);
+
+                } else if (results && results.length > 0) {
+                    logger.info(`Found a meal with ID ${mealId}`)
+                    callback(null, {
+                        status: 200,
+                        message: 'Found a meal with ID ' + mealId,
+                        data: results[0]
+                    });
+
+                } else {
+                    logger.debug(results)
+                    callback({status: 404, message: `Error: id ${mealId} does not exist!` }, null)
+
+                }
+            });
+        });
+    },
+    
+    getAllMeals: (callback) => {
+        mysqlDatabase.getConnection(function(err, connection) {
+            if (err) {
+                logger.error(err);
+                callback(err, null);
+                return;
+
+            }
+
+            connection.query('SELECT * FROM `meal`;', (err, results) => {
+                connection.release();
+                if (err) {
+                    logger.error(err);
+                    call(error, null);
+
+                } else if (results && results.length > 0) {
+                    logger.info(`Found ${results.length} meals`)
+                    callback(null, {
+                        status: 200,
+                        message: 'Found ' + results.length + ' meals',
+                        data: results
+                    });
+
+                } else {
+                    logger.debug(results)
+                    callback({status: 404, message: `Error: No meals found` }, null)
                 }
             });
         });

@@ -28,11 +28,46 @@ let mealController = {
     },
 
     getAllMeals: (req, res, next) => {
+        logger.info('mealController: getAllMeals');
 
+        mealService.getAllMeals((error, success) => {
+            if (error) {
+                return next({
+                    status: error.status,
+                    message: error.message,
+                    data: {}
+                });
+            }
+
+            if (success) {
+                res.status(200).json({
+                    status: success.status,
+                    message: success.message,
+                    data: success.data
+                });
+            }
+        });
     },
 
     getMealById: (req, res, next) => {
+        logger.info('mealController: getByID', req.params.mealId);
+        mealService.getMealById(req.params.mealId, (error, success) => {
+            if (error) {
+                return next({
+                    status: error.status,
+                    message: error.message,
+                    data: {}
+                });
+            }
 
+            if (success) {
+                res.status(200).json({
+                    status: success.status,
+                    message: success.message,
+                    data: success.data
+                });
+            }
+        });
     },
 
     deleteMeal: (req, res, next) => {
