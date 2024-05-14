@@ -107,6 +107,48 @@ const mealService = {
                 }
             });
         });
+    },
+
+    deleteMealById: (mealId, callback) => {
+        mysqlDatabase.getConnection(function(err, connection) {
+            if (err) {
+                logger.error(err);
+                callback(err, null);
+                return;
+
+            }
+
+            connection.query('SELECT * FROM `meal` WHERE id = ?;', [mealId], (err, results) => {
+                connection.release();
+                if (err) {
+                    logger.error(err);
+                    call(error, null);
+
+                } else if (results && results.length > 0) {
+                    // TODO: Check if owner
+
+                    // TODO: Delete meal
+                    connection.query('DELETE FROM `meal` WHERE id = ?', [mealId], (err, results) => {
+                        connection.release();
+                        if (err) {
+                            callback(error, null);
+                        } else {
+                            logger.info('Deleted user with id ', mealId)
+                            callback({
+                                status: 200,
+                                message: `Deleted meal with ID: ${mealId}`,
+                                data: {}
+                            }, null);
+                        }
+                    });
+
+                } else {
+                    logger.debug(results)
+                    callback({status: 404, message: `Error: id ${mealId} does not exist!` }, null)
+
+                }
+            });
+        });
     }
 }
 

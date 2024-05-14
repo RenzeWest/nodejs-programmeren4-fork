@@ -220,6 +220,7 @@ const userService = {
                 return;
             }
 
+            // Check if user exists
             connection.query('SELECT * FROM `user` WHERE id = ?;', [userID], (error, results, fields) => {
 
                 if (error) {
@@ -230,7 +231,7 @@ const userService = {
                 } else if (results && results.length > 0){
                     logger.debug(results);
                     
-                    // TODO: Delete user
+                    // Delete User
                     connection.query('DELETE FROM `user` WHERE id = ?', [userID], (err, results) => {
                         connection.release();
                         if (err) {

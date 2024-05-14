@@ -28,6 +28,6 @@ function validateMealPost(req, res, next) {
 router.post('/api/meal', validateMealPost, mealController.createMeal);
 router.get('/api/meal', mealController.getAllMeals);
 router.get('/api/meal/:mealId', mealController.getMealById);
-router.delete('/api/meal/:mealId', mealController.deleteMeal);
+router.delete('/api/meal/:mealId', mealController.deleteMealByID);
 
 module.exports = router;
