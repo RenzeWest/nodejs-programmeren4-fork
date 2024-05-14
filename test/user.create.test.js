@@ -214,6 +214,12 @@ describe('UC201 Registreren als nieuwe user', () => {
                 data.should.have.property('lastName').equals('Achternaam')
                 data.should.have.property('emailAdress')
                 data.should.have.property('id').that.is.a('number')
+                chai.expect(res.body.data).to.have.property('firstName').that.is.not.empty
+                chai.expect(res.body.data).to.have.property('lastName').that.is.not.empty
+                chai.expect(res.body.data).to.have.property('emailAdress').that.is.not.empty
+                chai.expect(res.body.data).to.have.property('password').that.is.not.empty
+                chai.expect(res.body.data).to.have.property('street').that.is.not.empty
+                chai.expect(res.body.data).to.have.property('city').that.is.not.empty
 
                 done()
             })

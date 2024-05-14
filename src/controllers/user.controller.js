@@ -27,9 +27,10 @@ let userController = {
     getUsers: (req, res, next) => {
         logger.trace('userContoller: getAll');
 
-        // Ik ga ervanuit dat ik maar 2 filters hoef te verzorgen en dat ik deze zelf mag kiezen
-        if (req.query.emailAdress && req.query.phoneNumber) { // Beide filters zijn aanwezig
-            userService.getByFilters(req.query.emailAdress, req.query.phoneNumber, (error, success) => {
+        const queryField = Object.entries(req.query); // Haalt de query parameters uit het request
+
+        if (queryField.length > 0 && queryField.length < 3) { // Er zijn filters aanwezig
+            userService.getByFilters(queryField, (error, success) => {
                 if (error) {
                     return next({
                         status: error.status,
@@ -46,43 +47,16 @@ let userController = {
                     });
                 }
             })
-        } else if (req.query.emailAdress) { // Alleen email is aanwezig
-            userService.getByFilters(req.query.emailAdress, null, (error, success) => {
-                if (error) {
-                    return next({
-                        status: error.status,
-                        message: error.message,
+
+        } else if (queryField.length > 2) {
+            // Er zijn teveel filters opgegeven
+            res.status(200).json({
+                        status: 200,
+                        message: 'You have entered to many query parameters',
                         data: {}
                     });
-                }
-
-                if (success) {
-                    res.status(200).json({
-                        status: success.status,
-                        message: success.message,
-                        data: success.data
-                    });
-                }
-            })
-        } else if (req.query.phoneNumber) { // Alleen phoneNumber is aanwezig
-            userService.getByFilters(null, req.query.phoneNumber, (error, success) => {
-                if (error) {
-                    return next({
-                        status: error.status,
-                        message: error.message,
-                        data: {}
-                    });
-                }
-
-                if (success) {
-                    res.status(200).json({
-                        status: success.status,
-                        message: success.message,
-                        data: success.data
-                    });
-                }
-            })
-        } else { // er zijn geen filters dus er kan ongefilterd gezocht worden (of er zijn filters opgegeven die niet bestaan)
+        } else { 
+            // Er zijn geen filters aanwezig
             userService.getAll((error, success) => {
                 if (error) {
                     return next({
@@ -101,6 +75,81 @@ let userController = {
                 }
             })
         }
+
+        // // Ik ga ervanuit dat ik maar 2 filters hoef te verzorgen en dat ik deze zelf mag kiezen
+        // if (req.query.emailAdress && req.query.phoneNumber) { // Beide filters zijn aanwezig
+        //     userService.getByFilters(req.query.emailAdress, req.query.phoneNumber, (error, success) => {
+        //         if (error) {
+        //             return next({
+        //                 status: error.status,
+        //                 message: error.message,
+        //                 data: {}
+        //             });
+        //         }
+
+        //         if (success) {
+        //             res.status(200).json({
+        //                 status: success.status,
+        //                 message: success.message,
+        //                 data: success.data
+        //             });
+        //         }
+        //     })
+        // } else if (req.query.emailAdress) { // Alleen email is aanwezig
+        //     userService.getByFilters(req.query.emailAdress, null, (error, success) => {
+        //         if (error) {
+        //             return next({
+        //                 status: error.status,
+        //                 message: error.message,
+        //                 data: {}
+        //             });
+        //         }
+
+        //         if (success) {
+        //             res.status(200).json({
+        //                 status: success.status,
+        //                 message: success.message,
+        //                 data: success.data
+        //             });
+        //         }
+        //     })
+        // } else if (req.query.phoneNumber) { // Alleen phoneNumber is aanwezig
+        //     userService.getByFilters(null, req.query.phoneNumber, (error, success) => {
+        //         if (error) {
+        //             return next({
+        //                 status: error.status,
+        //                 message: error.message,
+        //                 data: {}
+        //             });
+        //         }
+
+        //         if (success) {
+        //             res.status(200).json({
+        //                 status: success.status,
+        //                 message: success.message,
+        //                 data: success.data
+        //             });
+        //         }
+        //     })
+        // } else { // er zijn geen filters dus er kan ongefilterd gezocht worden (of er zijn filters opgegeven die niet bestaan)
+        //     userService.getAll((error, success) => {
+        //         if (error) {
+        //             return next({
+        //                 status: error.status,
+        //                 message: error.message,
+        //                 data: {}
+        //             });
+        //         }
+
+        //         if (success) {
+        //             res.status(200).json({
+        //                 status: success.status,
+        //                 message: success.message,
+        //                 data: success.data
+        //             });
+        //         }
+        //     })
+        // }
 
         
     },

@@ -289,28 +289,73 @@ const userService = {
         });
     },
 
-    // Methods without mysql
-    getByFilters: (email, phoneNumber, callback) => {
-        logger.info(`Searching on email: ${email} and phoneNumber: ${phoneNumber}`);
-        database.getByFilters(email, phoneNumber, (err, data) => {
-                if (err) {
-                    callback(err, null);
-                } else {
-                    callback(null, {
-                        status: 200,
-                        message: `Searched on filters ${email} & ${phoneNumber}. We found a total of ${data.length} users`,
-                        data: data
-                    });
+    getByFilters: (queryField, callback) => {
+        logger.info('Filters Used')
+
+        mysqlDatabase.getConnection(function(err, connection) {
+            if (err) {
+                logger.error(err);
+                callback(err, null);
+                return;
+            }
+
+            connection.query('SELECT * FROM `user`', function (error, results, fields) {
+
+                // Base query, this will be added upon later in the function
+                let query = 'SELECT * FROM `user` WHERE ';
+                const values = [];
+
+                if (error) {
+                    logger.error(error);
+                    connection.release();
+                    callback(error, null);
+
+                } else if (queryField.length === 1) {
+                    logger.info("Searching on 1 query")
+                    // Gaat door de metadata van de tabel user om te kijken of de waarden overheen komen
+                    const hasSearchField = fields.some(field => field.name === queryField[0][0]);
+
+                    if (hasSearchField) {
+                        // Voeg de waarden in de array
+                        values.push(queryField[0][1]);
+                        query += queryField[0][0] + "= ?;";
+                    } else {
+                        callback(null, {status: 200, message: 'Non exisiting query values', data: {}})
+                        return;
+                    }
+
+                } else if (queryField.length === 2) {
+                    logger.info("Searching on 2 queries")
+
+                    // Controleerd of de tabel de waarden heeft
+                    const hasSearchField1 = fields.some(field => field.name === queryField[0][0]);
+                    const hasSearchField2 = fields.some(field => field.name === queryField[1][0]);
+
+                    if (hasSearchField1 && hasSearchField2) {
+                        values.push(queryField[0][1], queryField[1][1]);
+                        query += queryField[0][0] + ' = ? AND ' + queryField[1][0] + " = ?;";
+                    } else {
+                        connection.release();
+                        callback(null, {status: 200, message: 'Non exisiting query values', data: {}})
+                        return;
+                    }
                 }
-            })
-        // if (email === null && phoneNumber) {
 
-        // } else if (email && phoneNumber === null) {
+                connection.query(query, values, (error, results) => {
+                    
+                    if (error) {
+                        logger.error(error);
+                        callback(error, null);
+                    } else {
+                        callback(null, {status: 200, message: 'Found ' + results.length + ' users', data: results});
+                    }
 
-        // } else {
-            
-        // }
-        
+                })
+
+
+
+            });
+        });       
     },
 
     getUserProfile: (userId, callback) => {
