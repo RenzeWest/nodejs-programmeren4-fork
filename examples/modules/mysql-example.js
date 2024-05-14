@@ -10,7 +10,7 @@ const connection = mysql.createConnection({
 
 // A simple SELECT query
 connection.query(
-  'SELECT * FROM `meal` ',
+  'SELECT * FROM `user` ',
   function (err, results, fields) {
     console.log('Results first query \n')
     console.log(results); // results contains rows returned by server

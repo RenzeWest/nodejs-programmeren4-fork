@@ -46,7 +46,7 @@ function validateToken(req, res, next) {
                 req.userId = payload.userId; // Get the userID from the payload of the token
                 next();
             }
-        });
+        }); 
 
     }
 }

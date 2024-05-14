@@ -22,9 +22,12 @@ const CLEAR_DB = CLEAR_MEAL_TABLE + CLEAR_PARTICIPANTS_TABLE + CLEAR_USERS_TABLE
  * Deze id kun je als foreign key gebruiken in de andere queries, bv insert meal.
  */
 const INSERT_USER =
-    'INSERT INTO user (id, firstName, lastName, emailAdress, password, street, city ) VALUES' +
-    '(1, "first", "last", "f.name@server.nl", "P9k!llak", "street", "city"), ' + 
-    '(2, "last", "first", "l.name@server.nl", "P0l.skA", "street", "city");'
+    'INSERT INTO user (id, firstName, lastName, emailAdress, password, street, city, isActive ) VALUES' +
+    '(1, "first", "last", "f.name@server.nl", "P9k!llak", "street", "city", 1), ' + 
+    '(3, "first", "last", "f.name@avans.nl", "P9k!llak", "straat1", "city", 1), ' + 
+    '(4, "first", "last", "m.as@sever.nl", "P9k!llak", "straat1", "city", 1), ' + 
+    '(5, "first", "last", "m.as@seer.nl", "P9k!llak", "straat1", "city", 0), ' +
+    '(2, "last", "first", "l.name@server.nl", "P0l.skA", "street", "city", 0);'
 
 /**
  * Query om twee meals toe te voegen. Let op de cookId, die moet matchen
@@ -38,7 +41,7 @@ const INSERT_MEALS =
 const jwt = require(`jsonwebtoken`)
 const jwtSecretKey = require('../src/util/config').secretkey
 
-const endpointToTest = '/api/user'
+const endpointToTest = '/api/user/'
 
 describe('UC-202 Opvragen van overzicht van users', () => {
 
@@ -85,33 +88,93 @@ describe('UC-202 Opvragen van overzicht van users', () => {
             })
     })
 
-    // ik had de filters iets anders aangepakt. Daarom skip ik deze voor nu even, ik ga dit bij de eind oplevering verbeteren
-    it.skip('TC-202-2 Toon gebruikers met zoekterm op niet-bestaande velden', (done) => {
-
-    })
-    it.skip('TC-202-3 Toon gebruiksers met gebruik van de zoekterm op het vled "isactive"= false', (done) => {
-
-    })
-    it.skip('TC-202-4 Toon gebruikers met gebruik van de zoekterm op het veld "isActive"=true', (done) => {
-
-    })
-
-    it.skip('TC-202-5 Toon gebruikers met zoektermen op bestaandevelden (max op 2 velden filteren)', (done) => {
+    it('TC-202-2 Toon gebruikers met zoekterm op niet-bestaande velden', (done) => {
+        const token = jwt.sign({ userId: 1 }, jwtSecretKey)
         chai.request(server)
-                    .get(endpointToTest + '?emailAdress=server&phoneNumber=06 11223344')
-                    .end((err, res) => {
-                        // Controleerd of de status 200 is
-                        chai.expect(res).to.have.status(200);
+            .get(endpointToTest + '?banaan=1')
+            .set('Authorization', 'Bearer ' + token)
+            .end((err, res) => {
+                // Controleerd of de status 200 is
+                chai.expect(res).to.have.status(200);
 
-                        const resB = res.body;
+                const resB = res.body;
 
-                        // Test of het een object is met een status en een data object
-                        chai.expect(resB).to.be.a('object');
-                        chai.expect(resB).to.have.property('status').equals(200);
-                        chai.expect(resB).to.have.property('data').that.is.a('array').that.is.not.empty;
-                        chai.expect(resB.data).to.have.lengthOf.above(0); // er is er 1 die aan de filters voldoet               
+                // Test of het een object is met een status en een data object
+                chai.expect(resB).to.be.a('object');
+                chai.expect(resB).to.have.property('status').equals(200);
+                chai.expect(resB).to.have.property('message').equals('Non exisiting query values');
+                chai.expect(resB).to.have.property('data').that.is.a('object').that.is.empty;              
 
-                        done();
-                    })
+                done();
+            })
+
+    })
+
+    it('TC-202-3 Toon gebruiksers met gebruik van de zoekterm op het veld "isactive"= 0', (done) => {
+        const token = jwt.sign({ userId: 1 }, jwtSecretKey)
+        chai.request(server)
+            .get(endpointToTest + '?isActive=0')
+            .set('Authorization', 'Bearer ' + token)
+            .end((err, res) => {
+                // Controleerd of de status 200 is
+                chai.expect(res).to.have.status(200);
+
+                const resB = res.body;
+
+                // Test of het een object is met een status en een data object
+                chai.expect(resB).to.be.a('object');
+                chai.expect(resB).to.have.property('status').equals(200);
+                chai.expect(resB).to.have.property('message').equals('Found 2 users');
+                chai.expect(resB).to.have.property('data').that.is.a('array').that.is.not.empty;
+                chai.expect(resB.data).to.have.lengthOf.above(1)             
+
+                done();
+            })
+
+    })
+    it('TC-202-4 Toon gebruikers met gebruik van de zoekterm op het veld "isActive"=1', (done) => {
+        const token = jwt.sign({ userId: 1 }, jwtSecretKey)
+        chai.request(server)
+            .get(endpointToTest + '?isActive=1')
+            .set('Authorization', 'Bearer ' + token)
+            .end((err, res) => {
+                // Controleerd of de status 200 is
+                chai.expect(res).to.have.status(200);
+
+                const resB = res.body;
+
+                // Test of het een object is met een status en een data object
+                chai.expect(resB).to.be.a('object');
+                chai.expect(resB).to.have.property('status').equals(200);
+                chai.expect(resB).to.have.property('message').equals('Found 3 users');
+                chai.expect(resB).to.have.property('data').that.is.a('array').that.is.not.empty;   
+                chai.expect(resB.data).to.have.lengthOf.above(1)           
+
+                done();
+            })
+
+    })
+
+    it('TC-202-5 Toon gebruikers met zoektermen op bestaandevelden (max op 2 velden filteren)', (done) => {
+        const token = jwt.sign({ userId: 1 }, jwtSecretKey)
+        chai.request(server)
+            .get(endpointToTest + '?isActive=1&street=straat1')
+            .set('Authorization', 'Bearer ' + token)
+            .end((err, res) => {
+                // Controleerd of de status 200 is
+                chai.expect(res).to.have.status(200);
+
+                const resB = res.body;
+
+                // Test of het een object is met een status en een data object
+                chai.expect(resB).to.be.a('object');
+                chai.expect(resB).to.have.property('status').equals(200);
+                chai.expect(resB).to.have.property('message').equals('Found 2 users');
+                chai.expect(resB).to.have.property('data').that.is.a('array').that.is.not.empty;     
+                chai.expect(resB.data).to.have.lengthOf.above(1)             
+
+                done();
+            })
+
     })
 })
