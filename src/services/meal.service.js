@@ -160,33 +160,4 @@ const mealService = {
     }
 }
 
-
-
-
 module.exports = mealService;
-
-/*
-Base for database connection
-mysqlDatabase.getConnection(function(err, connection) {
-    if (err) {
-        logger.error(err);
-        callback(err, null);
-        return;
-    }
-
-    connection.query('Query', function (error, results, fields) {
-        connection.release();
-
-        if (error) {
-            logger.error(error);
-            callback(error, null);
-        } else {
-            logger.debug(results);
-            callback(null, {
-
-            });
-        }
-
-    });
-});
-*/

@@ -68,6 +68,5 @@ function validateLogin(req, res, next) {
 
 
 router.post('/api/login', validateLogin, tokenController.login) // Log de gebruiker in in de login controller
-// router.get('/api/user/validation')
 
 module.exports = { router, validateToken }

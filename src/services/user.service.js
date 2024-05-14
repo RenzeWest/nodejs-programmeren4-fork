@@ -1,4 +1,3 @@
-const database = require('../dao/inmem-db')
 const mysqlDatabase = require('../dao/mysql-database')
 const logger = require('../util/logger')
 
@@ -417,27 +416,3 @@ const userService = {
 }
 
 module.exports = userService
-
-// Base for database connection
-// mysqlDatabase.getConnection(function(err, connection) {
-//             if (err) {
-//                 logger.error(err);
-//                 callback(err, null);
-//                 return;
-//             }
-
-//             connection.query('Query', function (error, results, fields) {
-//                 connection.release();
-
-//                 if (error) {
-//                     logger.error(error);
-//                     callback(error, null);
-//                 } else {
-//                     logger.debug(results);
-//                     callback(null, {
-
-//                     });
-//                 }
-
-//             });
-//         });

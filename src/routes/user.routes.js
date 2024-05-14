@@ -6,18 +6,6 @@ const userController = require('../controllers/user.controller')
 const validateToken = require('../routes/token.routes').validateToken
 const logger = require('../util/logger')
 
-// Input validation functions for user routes
-// const validateUserCreate = (req, res, next) => {
-//     if (!req.body.emailAdress || !req.body.firstName || !req.body.lastName) {
-//         next({
-//             status: 400,
-//             message: 'Missing email or password',
-//             data: {}
-//         })
-//     }
-//     next()
-// }
-
 // Validation for create body
 const validateUserCreate = (req, res, next) => {
     try {
