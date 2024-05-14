@@ -1,6 +1,5 @@
 const jwt = require('jsonwebtoken');
 const db = require('../dao/mysql-database');
-// const emailvalidatior?
 const logger = require('../util/logger');
 const jwtSecretKey = require('../util/config').secretkey;
 
@@ -52,7 +51,7 @@ const tokenController = {
                                 logger.debug('User not found or password invalid')
 
                                 callback({
-                                        status: 409,
+                                        status: 404,
                                         message:
                                             'User not found or password invalid',
                                         data: {}

@@ -1,11 +1,10 @@
 const express = require('express')
-const assert = require('assert')
 const chai = require('chai')
 chai.should()
 const router = express.Router()
 const userController = require('../controllers/user.controller')
+const validateToken = require('../routes/token.routes').validateToken
 const logger = require('../util/logger')
-const e = require('express')
 
 // Input validation functions for user routes
 // const validateUserCreate = (req, res, next) => {
@@ -120,12 +119,35 @@ function validatePhonenumber(phoneNumber) {
     if (!patern.test(phoneNumber)) throw new Error(`${phoneNumber} phoneNumber not valid`);
 }
 
+function checkIfOwner(req, res, next) {
+    try {
+
+        if ("" + req.userId !== req.params.userId) {
+            logger.info(req.userId + " != " + req.params.userId);
+            throw new Error('Your not the owner of the data');
+        }
+        
+        logger.trace('User is the owner of the data');
+        next();
+        
+
+    } catch (ex) {
+        logger.trace('Not the onwer of the data:', ex.message)
+            next({
+                status: 403,
+                message: ex.message,
+                data: {}
+            })
+    }
+}
+
 // Userroutes
 router.post('/api/user', validateUserCreate, userController.create);
 
-router.get('/api/user', userController.getUsers);
-router.get('/api/user/:userId', userController.getById);
-router.put('/api/user/:userId', validateUserPut, userController.updateById);
-router.delete('/api/user/:userId', userController.deleteById);
+router.get('/api/user/profile', validateToken, userController.getUserProfile);
+router.get('/api/user', validateToken, userController.getUsers);
+router.get('/api/user/:userId', validateToken, userController.getById);
+router.put('/api/user/:userId', validateToken,  checkIfOwner, validateUserPut, userController.updateById);
+router.delete('/api/user/:userId', validateToken,  checkIfOwner, userController.deleteById);
 
 module.exports = router

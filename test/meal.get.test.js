@@ -35,12 +35,9 @@ const INSERT_MEALS =
     "(1, 'Meal A', 'description', 'image url', NOW(), 5, 6.50, 1)," +
     "(2, 'Meal B', 'description', 'image url', NOW(), 5, 6.50, 1);"
 
-const jwt = require(`jsonwebtoken`)
-const jwtSecretKey = require('../src/util/config').secretkey
+const endpointToTest = '/api/meal/'
 
-const endpointToTest = '/api/user/'
-
-describe('UC-204 Opvragen van usergegevens bij ID', () => {
+describe('UC-303 Opvragen van alle maaltijden', () => {
 
     beforeEach((done) => {
             // maak de testdatabase leeg zodat we onze testen kunnen uitvoeren.
@@ -63,33 +60,54 @@ describe('UC-204 Opvragen van usergegevens bij ID', () => {
             })
     })
 
-    it('TC-204-1 Ongeldig token', (done) => {
-        // Verwacht 401
-        const token = jwt.sign({ userId: 1 }, jwtSecretKey)
+    it('TC-303-1 Lijst avn maaltijden geretourneerd', (done) => {
         chai.request(server)
-            .get(endpointToTest + '1')
-            .set('Authorization', 'Bearer ' + token + 1)
+            .get(endpointToTest)
             .end((err, res) => {
-                chai.expect(res).to.have.status(401);
+                // Controleerd of de status 200 is
+                chai.expect(res).to.have.status(200);
 
                 const resB = res.body;
 
                 // Test of het een object is met een status en een data object
                 chai.expect(resB).to.be.a('object');
-                chai.expect(resB).to.have.property('status').equals(401);
-                chai.expect(resB).to.have.property('data').that.is.a('object').that.is.empty;
-                chai.expect(resB).to.have.property('message')
+                chai.expect(resB).to.have.property('status').equals(200);
+                chai.expect(resB).to.have.property('data').that.is.a('array').that.is.not.empty;
+                chai.expect(resB.data).to.have.lengthOf.above(1);               
 
                 done();
             })
     })
 
-    it('TC-204-2 Gebruiker-ID bestaat niet', (done) => {
-        const token = jwt.sign({ userId: 1 }, jwtSecretKey)
-        // Verwacht 404
+})
+
+describe('UC-304 Opvragen van maaltijd bij ID', () => {
+
+    beforeEach((done) => {
+            // maak de testdatabase leeg zodat we onze testen kunnen uitvoeren.
+            db.getConnection(function (err, connection) {
+                if (err) throw err // not connected!
+
+                // Use the connection
+                connection.query(
+                    CLEAR_DB + INSERT_USER + INSERT_MEALS,
+                    function (error, results, fields) {
+                        // When done with the connection, release it.
+                        connection.release()
+
+                        // Handle error after the release.
+                        if (error) throw error
+                        // Let op dat je done() pas aanroept als de query callback eindigt!
+                        done()
+                    }
+                )
+            })
+    })
+
+    it('TC-304-1 Maaltijd bestaat niet', (done) => {
+
         chai.request(server)
-            .get(endpointToTest + '-1')
-            .set('Authorization', 'Bearer ' + token)
+            .get(endpointToTest + -1000)
             .end((err, res) => {
                 // Controleerd of de status 404 is
                 chai.expect(res).to.have.status(404);
@@ -99,19 +117,16 @@ describe('UC-204 Opvragen van usergegevens bij ID', () => {
                 // Test of het een object is met een status en een data object
                 chai.expect(resB).to.be.a('object');
                 chai.expect(resB).to.have.property('status').equals(404);
-                chai.expect(resB).to.have.property('data').that.is.a('object').that.is.empty;
-                chai.expect(resB).to.have.property('message').equals('Error: id -1 does not exist!')
+                chai.expect(resB).to.have.property('data').that.is.empty             
 
                 done();
             })
     })
 
-    it('TC-204-3 Gebruiker-ID bestaat', (done) => {
-        // Verwacht 200
-        const token = jwt.sign({ userId: 1 }, jwtSecretKey)
+    it('TC-304-2 Details van maaltijd geretourneerd', (done) => {
+
         chai.request(server)
-            .get(endpointToTest + '1')
-            .set('Authorization', 'Bearer ' + token)
+            .get(endpointToTest + 1)
             .end((err, res) => {
                 // Controleerd of de status 200 is
                 chai.expect(res).to.have.status(200);
@@ -122,10 +137,10 @@ describe('UC-204 Opvragen van usergegevens bij ID', () => {
                 chai.expect(resB).to.be.a('object');
                 chai.expect(resB).to.have.property('status').equals(200);
                 chai.expect(resB).to.have.property('data').that.is.a('object').that.is.not.empty;
+                chai.expect(resB.data).to.have.property('id').equals(1)      
 
                 done();
             })
     })
-
 
 })

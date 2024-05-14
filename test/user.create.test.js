@@ -43,14 +43,13 @@ describe('UC201 Registreren als nieuwe user', () => {
      * Hiermee kun je code hergebruiken of initialiseren.
      */
     beforeEach((done) => {
-        console.log('beforeEach called')
             // maak de testdatabase leeg zodat we onze testen kunnen uitvoeren.
             db.getConnection(function (err, connection) {
                 if (err) throw err // not connected!
 
                 // Use the connection
                 connection.query(
-                    CLEAR_DB + INSERT_USER,
+                    CLEAR_DB + INSERT_USER + INSERT_MEALS,
                     function (error, results, fields) {
                         // When done with the connection, release it.
                         connection.release()
@@ -58,7 +57,6 @@ describe('UC201 Registreren als nieuwe user', () => {
                         // Handle error after the release.
                         if (error) throw error
                         // Let op dat je done() pas aanroept als de query callback eindigt!
-                        console.log('beforeEach done')
                         done()
                     }
                 )
@@ -174,10 +172,10 @@ describe('UC201 Registreren als nieuwe user', () => {
             })
             .end((err, res) => {
 
-                chai.expect(res).to.have.status(400)
+                chai.expect(res).to.have.status(403)
                 chai.expect(res).not.to.have.status(200)
                 chai.expect(res.body).to.be.a('object')
-                chai.expect(res.body).to.have.property('status').equals(400)
+                chai.expect(res.body).to.have.property('status').equals(403)
                 chai.expect(res.body)
                     .to.have.property('message')
                     .equals('Email (f.name@server.nl) already in use!') 
@@ -205,7 +203,7 @@ describe('UC201 Registreren als nieuwe user', () => {
                 "roles": []
             })
             .end((err, res) => {
-                res.should.have.status(200)
+                res.should.have.status(201)
                 res.body.should.be.a('object')
 
                 res.body.should.have.property('data').that.is.a('object')

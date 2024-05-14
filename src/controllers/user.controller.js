@@ -15,7 +15,7 @@ let userController = {
             }
 
             if (success) {
-                res.status(200).json({
+                res.status(success.status).json({
                     status: success.status,
                     message: success.message,
                     data: success.data
@@ -155,7 +155,7 @@ let userController = {
     deleteById: (req, res, next) => {
         const userId = req.params.userId;
         logger.trace('userContoller deleteById', userId);
-        userService.deleteById(req.params.userId, (error, success) => {
+        userService.deleteById(userId, (error, success) => {
             if (error) {
                 return next({
                     status: error.status,
@@ -174,9 +174,11 @@ let userController = {
         });
     },
 
-    getAllTest: (req, res, next) => {
-        logger.trace('Get all SQL');
-        userService.getAllmysql((error, success) => {
+    getUserProfile: (req, res, next) => {
+        const userId = req.userId;
+        logger.trace('Get user profile', userId);
+        
+        userService.getUserProfile(userId, (error, success) => {
             if (error) {
                 return next({
                     status: error.status,

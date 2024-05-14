@@ -7,6 +7,9 @@ chai.should()
 chai.use(chaiHttp)
 tracer.setLevel('warn')
 
+const jwt = require(`jsonwebtoken`)
+const jwtSecretKey = require('../src/util/config').secretkey
+
 const db = require('../src/dao/mysql-database')
 
 /**
@@ -40,7 +43,6 @@ const endpointToTest = '/api/user/'
 describe('UC-206 Verwijderen van user', () => {
 
     beforeEach((done) => {
-        console.log('beforeEach called')
             // maak de testdatabase leeg zodat we onze testen kunnen uitvoeren.
             db.getConnection(function (err, connection) {
                 if (err) throw err // not connected!
@@ -55,7 +57,6 @@ describe('UC-206 Verwijderen van user', () => {
                         // Handle error after the release.
                         if (error) throw error
                         // Let op dat je done() pas aanroept als de query callback eindigt!
-                        console.log('beforeEach done')
                         done()
                     }
                 )
@@ -64,8 +65,10 @@ describe('UC-206 Verwijderen van user', () => {
 
     it('TC-206-1 Gebruiker bestaat niet', (done) => {
         // Verwacht 404
+        const token = jwt.sign({ userId: 100 }, jwtSecretKey)
         chai.request(server)
-            .delete(endpointToTest + '-1')
+            .delete(endpointToTest + '100')
+            .set('Authorization', 'Bearer ' + token)
             .end((err, res) => {
                 // Controleerd of de status 404 is
                 chai.expect(res).to.have.status(404);
@@ -76,24 +79,60 @@ describe('UC-206 Verwijderen van user', () => {
                 chai.expect(resB).to.be.a('object');
                 chai.expect(resB).to.have.property('status').equals(404);
                 chai.expect(resB).to.have.property('data').that.is.a('object').that.is.empty;
-                chai.expect(resB).to.have.property('message').equals('Error: id -1 does not exist!');
+                chai.expect(resB).to.have.property('message').equals('Error: id 100 does not exist!');
 
                 done();
             })
     })
 
-    it.skip('TC-206-2 Gebruiker is niet ingelogd', (done) => {
-        // Verwacht 401
+    it('TC-206-2 Gebruiker is niet ingelogd', (done) => {
+        // verwacht 401
+        const token = jwt.sign({ userId: 10000 }, jwtSecretKey)
+        chai.request(server)
+            .put(endpointToTest + 10000)
+            .set('Authorization', 'Bearer ')
+            .end((err, res) => {
+                // Controleerd of de status 401 is
+                chai.expect(res).to.have.status(401);
+                chai.expect(res).not.to.have.status(200);
+
+                // Test of het een object is met een status en een data object
+                chai.expect(res.body).to.be.a('object');
+                chai.expect(res.body).to.have.property('status').equals(401);
+                chai.expect(res.body).to.have.property('data').that.is.a('object').that.is.empty;
+                chai.expect(res.body).to.have.property('message').equals('Not authorized')
+
+                done();
+            })
     })
 
-    it.skip('TC-206-3 De gebruiker is niet de eigenaar van de data', (done) => {
-        // Verwacht 403
+    it('TC-206-3 De gebruiker is niet de eigenaar van de data', (done) => {
+        // verwacht 403
+        const token = jwt.sign({ userId: 1000 }, jwtSecretKey)
+        chai.request(server)
+            .put(endpointToTest + 10000)
+            .set('Authorization', 'Bearer ' + token)
+            .end((err, res) => {
+                // Controleerd of de status 403 is
+                chai.expect(res).to.have.status(403);
+                chai.expect(res).not.to.have.status(200);
+
+                // Test of het een object is met een status en een data object
+                chai.expect(res.body).to.be.a('object');
+                chai.expect(res.body).to.have.property('status').equals(403);
+                chai.expect(res.body).to.have.property('data').that.is.a('object').that.is.empty;
+                chai.expect(res.body).to.have.property('message')
+
+                done();
+            })
     })
 
-    it('TC-206-4 Geburiker succesvol verwijderd', (done) => {
+    it('TC-206-4 Gebruiker succesvol verwijderd', (done) => {
         // Verwacht 200
+        const token = jwt.sign({ userId: 1 }, jwtSecretKey)
         chai.request(server)
             .delete(endpointToTest + '1')
+            .set('Authorization', 'Bearer ' + token)
             .end((err, res) => {
                 // Controleerd of de status 200 is
                 chai.expect(res).to.have.status(200);
