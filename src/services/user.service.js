@@ -279,14 +279,58 @@ const userService = {
         
     },
 
-    // getByOneFilter: (filter, callback) {
-    //     const splitFilter = filter.split(":");
-    //     if (splitFilter[0] === 'email') {
+    getUserProfile: (userId, callback) => {
+        logger.info(`get profile: ${userId}`)
 
-    //     } else if (splitFilter[0] === 'phoneNumber') {
+        mysqlDatabase.getConnection((err, connection) => {
+            if (err) {
+                logger.error(err);
+                callback(err, null);
+                return;
 
-    //     }
-    // },
+            }
+
+            connection.query('SELECT * FROM `user` WHERE id = ?;', [userId], (error, results, fields) => {
+
+                if (error) {
+                    logger.error(error);
+                    connection.release();
+                    callback(error, null);
+
+                } else if (results && results.length > 0){
+                    logger.debug(results);
+                    let userDetail = results[0];
+                    console.log(userDetail)
+
+                    // Get connected Meals
+                    connection.query('SELECT * FROM `meal` WHERE cookId = ?', [userId], (err, results) => { // Ik doe voor nu ook even maaltijden die in het verleden hebben plaats gevonden aangezien de meal data allemaal 2022 is
+                        connection.release();
+                        if (err) {
+                            logger.error(err);
+                            callback(error, null);
+                        } else if (results && results.length > 0) {
+                            
+                            userDetail = Object.assign(userDetail, {meals: results})
+
+                            callback(null, {
+                                status: 200,
+                                message: 'Found user profile',
+                                data: userDetail
+                            })
+                        } else {
+
+                        }
+                    });
+
+                } else {
+                    logger.debug(results)
+                    callback({status: 404, message: `Error: profile does not exist!` }, null)
+
+                }
+
+            });
+        });
+    }
 }
 
 module.exports = userService

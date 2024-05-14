@@ -174,9 +174,11 @@ let userController = {
         });
     },
 
-    getAllTest: (req, res, next) => {
-        logger.trace('Get all SQL');
-        userService.getAllmysql((error, success) => {
+    getUserProfile: (req, res, next) => {
+        const userId = req.userId;
+        logger.trace('Get user profile', userId);
+        
+        userService.getUserProfile(userId, (error, success) => {
             if (error) {
                 return next({
                     status: error.status,

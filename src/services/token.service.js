@@ -1,6 +1,5 @@
 const jwt = require('jsonwebtoken');
 const db = require('../dao/mysql-database');
-// const emailvalidatior?
 const logger = require('../util/logger');
 const jwtSecretKey = require('../util/config').secretkey;
 

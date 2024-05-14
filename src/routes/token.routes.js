@@ -1,11 +1,9 @@
-// const express = require('express');
-// const chai = require('chai');
+const express = require('express');
 const assert = require('assert');
-// chai.should()
-const routes = require('express').Router();
+const router = express.Router();
 const logger = require('../util/logger');
 // Controllers 
-const TokenController = require('../controllers/token.controller');
+const tokenController = require('../controllers/token.controller');
 // For validation
 const jwt = require('jsonwebtoken');
 const jwtSecretKey = require('../util/config').secretkey;
@@ -69,7 +67,7 @@ function validateLogin(req, res, next) {
 }
 
 
-routes.post('/login', validateLogin, TokenController.login) // Log de gebruiker in in de login controller
+router.post('/api/login', validateLogin, tokenController.login) // Log de gebruiker in in de login controller
 // router.get('/api/user/validation')
 
-modules.exports = { routes, validateToken }
+module.exports = { router, validateToken }

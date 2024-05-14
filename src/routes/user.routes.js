@@ -3,6 +3,7 @@ const chai = require('chai')
 chai.should()
 const router = express.Router()
 const userController = require('../controllers/user.controller')
+const validateToken = require('../routes/token.routes').validateToken
 const logger = require('../util/logger')
 
 // Input validation functions for user routes
@@ -121,6 +122,7 @@ function validatePhonenumber(phoneNumber) {
 // Userroutes
 router.post('/api/user', validateUserCreate, userController.create);
 
+router.get('/api/user/profile', validateToken, userController.getUserProfile);
 router.get('/api/user', userController.getUsers);
 router.get('/api/user/:userId', userController.getById);
 router.put('/api/user/:userId', validateUserPut, userController.updateById);
