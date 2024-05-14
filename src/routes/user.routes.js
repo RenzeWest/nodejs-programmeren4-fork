@@ -1,11 +1,9 @@
 const express = require('express')
-const assert = require('assert')
 const chai = require('chai')
 chai.should()
 const router = express.Router()
 const userController = require('../controllers/user.controller')
 const logger = require('../util/logger')
-const e = require('express')
 
 // Input validation functions for user routes
 // const validateUserCreate = (req, res, next) => {
