@@ -9,7 +9,7 @@ const logger = require('../util/logger')
 function validateMealPost(req, res, next) {
     try {
         const reqB = req.body;
-        
+
 
         logger.trace('Meal successfully validated');
         next();
@@ -29,3 +29,5 @@ router.post('/api/meal', validateMealPost, mealController.createMeal);
 router.get('/api/meal', mealController.getAllMeals);
 router.get('/api/meal/:mealId', mealController.getMealById);
 router.delete('/api/meal/:mealId', mealController.deleteMeal);
+
+module.exports = router;
