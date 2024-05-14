@@ -1,5 +1,8 @@
 const express = require('express')
 const userRoutes = require('./src/routes/user.routes')
+const mealRoutes = require('./src/routes/meal.routes')
+const tokenRoutes = require('./src/routes/token.routes').router
+const logger = require('./src/util/logger')
 
 const app = express()
 
@@ -8,29 +11,22 @@ app.use(express.json())
 
 const port = process.env.PORT || 3000
 
-app.all('*', (req, res, next) => {
-    console.log('Request:', req.method, req.url)
-    next()
-})
-
-app.get('/', function (req, res) {
-    res.json({ message: 'Hello World' })
-})
-
+// Deze route geeft de student information
 app.get('/api/info', (req, res) => {
     console.log('GET /api/info')
-    const info = {
-        name: 'My Nodejs Express server',
-        version: '0.0.1',
+    res.json({
+        studentName: 'Renze Westerink',
+        studentNumber: 2217105,
         description: 'This is a simple Nodejs Express server'
-    }
-    res.json(info)
+    })
 })
 
 // Hier komen alle routes
 app.use(userRoutes)
+app.use(mealRoutes)
+app.use(tokenRoutes)
 
-// Hier komt de route error handler te staan!
+// Route error handler
 app.use((req, res, next) => {
     next({
         status: 404,
@@ -49,7 +45,7 @@ app.use((error, req, res, next) => {
 })
 
 app.listen(port, () => {
-    console.log(`Server is running on port ${port}`)
+    logger.info(`Server is running on port ${port}`)
 })
 
 // Deze export is nodig zodat Chai de server kan opstarten
