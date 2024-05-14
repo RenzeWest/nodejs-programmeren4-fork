@@ -5,9 +5,10 @@ let mealController = {
 
     createMeal: (req, res, next) => {
         const meal = req.body;
+        const userId = req.userId;
         logger.info('mealController: createMeal', meal.name);
         
-        mealService.createMeal(meal, (error, success) => {
+        mealService.createMeal(meal, userId,(error, success) => {
             if (error) {
                 return next({
                     status: error.status,
@@ -72,8 +73,8 @@ let mealController = {
 
     deleteMealByID: (req, res, next) => {
         logger.info('mealController: deleteMealByID');
-
-        mealService.deleteMealById(req.params.mealId, (error, success) => {
+        const userID = req.userId;
+        mealService.deleteMealById(req.params.mealId, userID, (error, success) => {
             if (error) {
                 return next({
                     status: error.status,

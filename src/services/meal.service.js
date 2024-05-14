@@ -3,7 +3,7 @@ const mysqlDatabase = require('../dao/mysql-database')
 const logger = require('../util/logger')
 
 const mealService = {
-    createMeal: (meal, callback) => {
+    createMeal: (meal, userId,callback) => {
         mysqlDatabase.getConnection(function(err, connection) {
             if (err) {
                 logger.error(err);
@@ -13,7 +13,7 @@ const mealService = {
             }
 
             connection.query('INSERT INTO `meal`(`isActive`, `isVega`, `isVegan`, `isToTakeHome`, `dateTime`, `maxAmountOfParticipants`, `price`, `imageUrl`, `cookId`, `name`, `description`, `allergenes`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);',
-                [meal.isActive, meal.isVega, meal.isVegan, meal.isToTakeHome, meal.dateTime, meal.maxAmountOfParticicpants, meal.price, meal.imageUrl, meal.cookId, meal.name, meal.description, meal.allergenes],            
+                [meal.isActive, meal.isVega, meal.isVegan, meal.isToTakeHome, meal.dateTime, meal.maxAmountOfParticipants, meal.price, meal.imageUrl, userId, meal.name, meal.description, meal.allergenes],            
                 function (error, results) {
 
                 if (error) {
@@ -33,7 +33,7 @@ const mealService = {
                         } else {
                             logger.info(`meal succesfully created with id ${results[0].id}`)
                             callback(null, {
-                                status: 200,
+                                status: 201,
                                 message: 'Meal succesfully created with id ' + results[0].id,
                                 data: results[0]
                             });
@@ -109,7 +109,8 @@ const mealService = {
         });
     },
 
-    deleteMealById: (mealId, callback) => {
+    deleteMealById: (mealId, userId, callback) => {
+        logger.info("service: Delete meal ", mealId , " ,userID ", userId)
         mysqlDatabase.getConnection(function(err, connection) {
             if (err) {
                 logger.error(err);
@@ -118,14 +119,21 @@ const mealService = {
 
             }
 
-            connection.query('SELECT * FROM `meal` WHERE id = ?;', [mealId], (err, results) => {
-                connection.release();
-                if (err) {
-                    logger.error(err);
-                    call(error, null);
+            // Check if the meal exists
+            connection.query('SELECT * FROM `meal` WHERE id = ?;', [mealId], (erro, results) => {
+                if (erro) {
+                    connection.release();
+                    logger.error(erro);
+                    call(erro, null);
 
                 } else if (results && results.length > 0) {
                     // TODO: Check if owner
+                    if (results[0].cookId !== userId) {
+                        connection.release();
+                        logger.info('User is not the owner of the meal (', results[0].cookId, " != ", userId, ")");
+                        callback({status: 403, message: "Not owner of the data", data: {}})
+                        return;
+                    }
 
                     // TODO: Delete meal
                     connection.query('DELETE FROM `meal` WHERE id = ?', [mealId], (err, results) => {

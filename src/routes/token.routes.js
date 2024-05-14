@@ -59,7 +59,7 @@ function validateLogin(req, res, next) {
         next()
     } catch (ex) {
         next({
-            status: 409,
+            status: 400,
             message: ex.toString(),
             data: {}
         })

@@ -155,7 +155,7 @@ let userController = {
     deleteById: (req, res, next) => {
         const userId = req.params.userId;
         logger.trace('userContoller deleteById', userId);
-        userService.deleteById(req.params.userId, (error, success) => {
+        userService.deleteById(userId, (error, success) => {
             if (error) {
                 return next({
                     status: error.status,
