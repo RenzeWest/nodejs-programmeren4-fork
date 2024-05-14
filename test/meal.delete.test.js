@@ -7,6 +7,9 @@ chai.should()
 chai.use(chaiHttp)
 tracer.setLevel('warn')
 
+const jwt = require(`jsonwebtoken`)
+const jwtSecretKey = require('../src/util/config').secretkey
+
 const db = require('../src/dao/mysql-database')
 
 /**
@@ -35,12 +38,9 @@ const INSERT_MEALS =
     "(1, 'Meal A', 'description', 'image url', NOW(), 5, 6.50, 1)," +
     "(2, 'Meal B', 'description', 'image url', NOW(), 5, 6.50, 1);"
 
-const jwt = require(`jsonwebtoken`)
-const jwtSecretKey = require('../src/util/config').secretkey
+const endpointToTest = '/api/meal/'
 
-const endpointToTest = '/api/user/'
-
-describe('UC-204 Opvragen van usergegevens bij ID', () => {
+describe('UC-305 Verwijderen van maaltijd', () => {
 
     beforeEach((done) => {
             // maak de testdatabase leeg zodat we onze testen kunnen uitvoeren.
@@ -63,65 +63,84 @@ describe('UC-204 Opvragen van usergegevens bij ID', () => {
             })
     })
 
-    it('TC-204-1 Ongeldig token', (done) => {
-        // Verwacht 401
+    it('TC-305-1 Niet ingelogd', (done) => {
+        // verwacht 401
         const token = jwt.sign({ userId: 1 }, jwtSecretKey)
         chai.request(server)
-            .get(endpointToTest + '1')
-            .set('Authorization', 'Bearer ' + token + 1)
+            .delete(endpointToTest + 1)
+            .set('Authorization', 'Bearer ')
             .end((err, res) => {
+                // Controleerd of de status 401 is
                 chai.expect(res).to.have.status(401);
-
-                const resB = res.body;
+                chai.expect(res).not.to.have.status(200);
 
                 // Test of het een object is met een status en een data object
-                chai.expect(resB).to.be.a('object');
-                chai.expect(resB).to.have.property('status').equals(401);
-                chai.expect(resB).to.have.property('data').that.is.a('object').that.is.empty;
-                chai.expect(resB).to.have.property('message')
+                chai.expect(res.body).to.be.a('object');
+                chai.expect(res.body).to.have.property('status').equals(401);
+                chai.expect(res.body).to.have.property('data').that.is.a('object').that.is.empty;
+                chai.expect(res.body).to.have.property('message').equals('Not authorized')
 
                 done();
             })
     })
 
-    it('TC-204-2 Gebruiker-ID bestaat niet', (done) => {
-        const token = jwt.sign({ userId: 1 }, jwtSecretKey)
-        // Verwacht 404
+    it('TC-305-2 Niet de eigenaar van de data', (done) => {
+        // verwacht 403
+        const token = jwt.sign({ userId: 1000 }, jwtSecretKey)
         chai.request(server)
-            .get(endpointToTest + '-1')
+            .delete(endpointToTest + 2)
+            .set('Authorization', 'Bearer ' + token)
+            .end((err, res) => {
+                // Controleerd of de status 403 is
+                chai.expect(res).to.have.status(403);
+                chai.expect(res).not.to.have.status(200);
+
+                // Test of het een object is met een status en een data object
+                chai.expect(res.body).to.be.a('object');
+                chai.expect(res.body).to.have.property('status').equals(403);
+                chai.expect(res.body).to.have.property('data').that.is.a('object').that.is.empty;
+                chai.expect(res.body).to.have.property('message').equals('Not owner of the data')
+
+                done();
+            })
+    })
+
+    it('TC-305-3 Maaltijd bestaat niet', (done) => {
+        // verwacht 404
+        const token = jwt.sign({ userId: 1 }, jwtSecretKey)
+        chai.request(server)
+            .delete(endpointToTest + 1000)
             .set('Authorization', 'Bearer ' + token)
             .end((err, res) => {
                 // Controleerd of de status 404 is
                 chai.expect(res).to.have.status(404);
-
-                const resB = res.body;
+                chai.expect(res).not.to.have.status(200);
 
                 // Test of het een object is met een status en een data object
-                chai.expect(resB).to.be.a('object');
-                chai.expect(resB).to.have.property('status').equals(404);
-                chai.expect(resB).to.have.property('data').that.is.a('object').that.is.empty;
-                chai.expect(resB).to.have.property('message').equals('Error: id -1 does not exist!')
+                chai.expect(res.body).to.be.a('object');
+                chai.expect(res.body).to.have.property('status').equals(404);
+                chai.expect(res.body).to.have.property('data').that.is.a('object').that.is.empty;
+                chai.expect(res.body).to.have.property('message').equals('Error: id 1000 does not exist!')
 
                 done();
             })
     })
 
-    it('TC-204-3 Gebruiker-ID bestaat', (done) => {
-        // Verwacht 200
+    it('TC-305-4 Maaltijd succesvol verwijderd', (done) => {
         const token = jwt.sign({ userId: 1 }, jwtSecretKey)
         chai.request(server)
-            .get(endpointToTest + '1')
+            .delete(endpointToTest + 1)
             .set('Authorization', 'Bearer ' + token)
             .end((err, res) => {
                 // Controleerd of de status 200 is
                 chai.expect(res).to.have.status(200);
-
-                const resB = res.body;
+                chai.expect(res).not.to.have.status(404);
 
                 // Test of het een object is met een status en een data object
-                chai.expect(resB).to.be.a('object');
-                chai.expect(resB).to.have.property('status').equals(200);
-                chai.expect(resB).to.have.property('data').that.is.a('object').that.is.not.empty;
+                chai.expect(res.body).to.be.a('object');
+                chai.expect(res.body).to.have.property('status').equals(200);
+                chai.expect(res.body).to.have.property('data').that.is.a('object').that.is.empty;
+                chai.expect(res.body).to.have.property('message').equals('Deleted meal with ID: 1')
 
                 done();
             })

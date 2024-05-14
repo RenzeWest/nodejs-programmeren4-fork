@@ -115,12 +115,10 @@ const userService = {
                     logger.error(error);
                     callback(error, null);
                 } else if (results && results.length > 0){
-                    logger.debug(results);
                     let userDetail = results[0];
 
                     // Get connected Meals
                     connection.query('SELECT * FROM `meal` WHERE cookId = ?', [userID], (err, results) => { // Ik doe voor nu ook even maaltijden die in het verleden hebben plaats gevonden aangezien de meal data allemaal 2022 is
-                        console.log(results)
                         connection.release();
                         if (err) {
                             logger.error(err);
@@ -269,7 +267,7 @@ const userService = {
                                 if (err) {
                                     callback(err, null);
                                 } else {
-                                    console.log('Deleted User')
+                                    logger.info('Deleted User')
                                     callback({
                                         status: 200,
                                         message: `Deleted user with ID: ${userID}`,

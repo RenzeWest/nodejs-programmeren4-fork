@@ -50,7 +50,6 @@ function validateMealPost(req, res, next) {
 }
 
 // Routes
-
 router.post('/api/meal', validateToken, validateMealPost, mealController.createMeal);
 router.get('/api/meal', mealController.getAllMeals);
 router.get('/api/meal/:mealId', mealController.getMealById);

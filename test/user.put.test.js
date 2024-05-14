@@ -7,6 +7,9 @@ chai.should()
 chai.use(chaiHttp)
 tracer.setLevel('warn')
 
+const jwt = require(`jsonwebtoken`)
+const jwtSecretKey = require('../src/util/config').secretkey
+
 const db = require('../src/dao/mysql-database')
 
 /**
@@ -40,14 +43,13 @@ const endpointToTest = '/api/user/'
 describe('UC205 Updaten van usergegevens', () => {
 
     beforeEach((done) => {
-        console.log('beforeEach called')
             // maak de testdatabase leeg zodat we onze testen kunnen uitvoeren.
             db.getConnection(function (err, connection) {
                 if (err) throw err // not connected!
 
                 // Use the connection
                 connection.query(
-                    CLEAR_DB + INSERT_USER,
+                    CLEAR_DB + INSERT_USER + INSERT_MEALS,
                     function (error, results, fields) {
                         // When done with the connection, release it.
                         connection.release()
@@ -55,7 +57,6 @@ describe('UC205 Updaten van usergegevens', () => {
                         // Handle error after the release.
                         if (error) throw error
                         // Let op dat je done() pas aanroept als de query callback eindigt!
-                        console.log('beforeEach done')
                         done()
                     }
                 )
@@ -64,8 +65,10 @@ describe('UC205 Updaten van usergegevens', () => {
 
     it('TC-205-1 Verplicht veld "emailAdress" ontbreekt', (done) => {
         // verwacht  400
+        const token = jwt.sign({ userId: 1 }, jwtSecretKey)
         chai.request(server)
             .put(endpointToTest + 1)
+            .set('Authorization', 'Bearer ' + token)
             .send({
                 firstName: 'Renze',
                 lastName: 'Westerink',
@@ -87,14 +90,40 @@ describe('UC205 Updaten van usergegevens', () => {
             })
     })
 
-    it.skip('TC-205-2 De gebruiker is niet de eigenaar van de data', (done) => {
+    it('TC-205-2 De gebruiker is niet de eigenaar van de data', (done) => {
         // verwacht 403
+        const token = jwt.sign({ userId: 1000 }, jwtSecretKey)
+        chai.request(server)
+            .put(endpointToTest + 10000)
+            .set('Authorization', 'Bearer ' + token)
+            .send({
+                firstName: 'Renze',
+                lastName: 'Westerink',
+                emailAdress: 'r.gw@server.nl',
+                phoneNumber: '06 29158683'
+
+            })
+            .end((err, res) => {
+                // Controleerd of de status 403 is
+                chai.expect(res).to.have.status(403);
+                chai.expect(res).not.to.have.status(200);
+
+                // Test of het een object is met een status en een data object
+                chai.expect(res.body).to.be.a('object');
+                chai.expect(res.body).to.have.property('status').equals(403);
+                chai.expect(res.body).to.have.property('data').that.is.a('object').that.is.empty;
+                chai.expect(res.body).to.have.property('message')
+
+                done();
+            })
     })
 
     it('TC-205-3 Niet-valide telefoonnummber', (done) => {
         // verwacht 400
+        const token = jwt.sign({ userId: 1 }, jwtSecretKey)
         chai.request(server)
             .put(endpointToTest + 1)
+            .set('Authorization', 'Bearer ' + token)
             .send({
                 firstName: 'Renze',
                 lastName: 'Westerink',
@@ -118,8 +147,10 @@ describe('UC205 Updaten van usergegevens', () => {
     })
 
     it('TC-205-4 Gebruiker bestaat niet', (done) => {
+        const token = jwt.sign({ userId: 10000 }, jwtSecretKey)
         chai.request(server)
             .put(endpointToTest + 10000)
+            .set('Authorization', 'Bearer ' + token)
             .send({
                 firstName: 'Renze',
                 lastName: 'Westerink',
@@ -142,14 +173,40 @@ describe('UC205 Updaten van usergegevens', () => {
             })
     })  
 
-    it.skip('TC-205-5 Niet ingelogd', (done) => {
+    it('TC-205-5 Niet ingelogd', (done) => {
         // verwacht 401
+        const token = jwt.sign({ userId: 10000 }, jwtSecretKey)
+        chai.request(server)
+            .put(endpointToTest + 10000)
+            .set('Authorization', 'Bearer ')
+            .send({
+                firstName: 'Renze',
+                lastName: 'Westerink',
+                emailAdress: 'r.gw@server.nl',
+                phoneNumber: '06 29158683'
+
+            })
+            .end((err, res) => {
+                // Controleerd of de status 401 is
+                chai.expect(res).to.have.status(401);
+                chai.expect(res).not.to.have.status(200);
+
+                // Test of het een object is met een status en een data object
+                chai.expect(res.body).to.be.a('object');
+                chai.expect(res.body).to.have.property('status').equals(401);
+                chai.expect(res.body).to.have.property('data').that.is.a('object').that.is.empty;
+                chai.expect(res.body).to.have.property('message').equals('Not authorized')
+
+                done();
+            })
     })
 
     it('TC-205-6 Gebruiker succesvol gewijzigd', (done) => {
         // verwacht 200
+        const token = jwt.sign({ userId: 1 }, jwtSecretKey)
         chai.request(server)
             .put(endpointToTest + 1)
+            .set('Authorization', 'Bearer ' + token)
             .send({
                 "firstName": "Mark",
                 "lastName": "Van Dam",

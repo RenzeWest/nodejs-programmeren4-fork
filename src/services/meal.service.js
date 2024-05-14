@@ -127,7 +127,7 @@ const mealService = {
                     call(erro, null);
 
                 } else if (results && results.length > 0) {
-                    // TODO: Check if owner
+                    // Check if owner
                     if (results[0].cookId !== userId) {
                         connection.release();
                         logger.info('User is not the owner of the meal (', results[0].cookId, " != ", userId, ")");
@@ -135,7 +135,7 @@ const mealService = {
                         return;
                     }
 
-                    // TODO: Delete meal
+                    // Delete meal
                     connection.query('DELETE FROM `meal` WHERE id = ?', [mealId], (err, results) => {
                         connection.release();
                         if (err) {
@@ -150,7 +150,7 @@ const mealService = {
                         }
                     });
 
-                } else {
+                } else { // No meal fount with corosponding ID
                     logger.debug(results)
                     callback({status: 404, message: `Error: id ${mealId} does not exist!` }, null)
 

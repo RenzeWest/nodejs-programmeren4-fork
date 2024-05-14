@@ -142,7 +142,7 @@ function checkIfOwner(req, res, next) {
 }
 
 // Userroutes
-router.post('/api/user', validateToken,  checkIfOwner, validateUserCreate, userController.create);
+router.post('/api/user', validateUserCreate, userController.create);
 
 router.get('/api/user/profile', validateToken, userController.getUserProfile);
 router.get('/api/user', validateToken, userController.getUsers);
